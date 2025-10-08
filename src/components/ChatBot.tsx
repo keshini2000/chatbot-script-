@@ -17,6 +17,7 @@ interface ChatResponse {
   conversation_id: string;
   sources: string[];
   confidence_score?: number;
+  show_contact?: boolean;
 }
 
 export default function ChatBot() {
@@ -31,6 +32,7 @@ export default function ChatBot() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages are added
@@ -59,8 +61,8 @@ export default function ChatBot() {
     setIsLoading(true);
 
     try {
-      // Call our chatbot API
-      const response = await fetch('http://localhost:8000/chat', {
+      // Call our TypeScript chatbot API
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,6 +84,11 @@ export default function ChatBot() {
         setConversationId(data.conversation_id);
       }
 
+      // Auto-show contact modal if backend suggests it
+      if (data.show_contact) {
+        setTimeout(() => setShowContactModal(true), 1000); // Show after 1 second
+      }
+
       // Add bot response
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -100,7 +107,7 @@ export default function ChatBot() {
       // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Sorry, I'm having trouble connecting to my knowledge base. Please make sure the API server is running and try again.",
+        text: "Sorry, I'm having trouble connecting to my knowledge base. Please try again or refresh the page.",
         isUser: false,
         timestamp: new Date(),
       };
@@ -129,7 +136,73 @@ export default function ChatBot() {
     "What ecommerce features does Core DNA offer?",
     "How does Core DNA's content management work?",
     "Tell me about Core DNA's integrations",
+    "How can I contact the sales team?",
   ];
+
+  // Contact modal component
+  const ContactModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Contact Core DNA Sales</h3>
+          <button
+            onClick={() => setShowContactModal(false)}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">📧 Email Sales Team</h4>
+            <a
+              href="mailto:sales@coredna.com"
+              className="text-blue-600 hover:underline"
+            >
+              sales@coredna.com
+            </a>
+          </div>
+          
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">📞 Call Sales Team</h4>
+            <div className="space-y-1">
+              <div>
+                <span className="text-sm text-gray-600">🇺🇸 US/Canada: </span>
+                <a href="tel:+16172746660" className="text-blue-600 hover:underline">
+                  +1 617 274 6660
+                </a>
+              </div>
+              <div>
+                <span className="text-sm text-gray-600">🇦🇺 Australia/NZ: </span>
+                <a href="tel:+61385639100" className="text-blue-600 hover:underline">
+                  +61 3 8563 9100
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">🏢 Office Locations</h4>
+            <div className="text-sm text-gray-600 space-y-1">
+              <div>📍 Melbourne: 348 High Street, Prahran, VIC 3181</div>
+              <div>📍 Boston: 55 Court St, Level 2, Boston, MA 02108</div>
+              <div>📍 Berlin: Belziger Str. 71, Berlin 10823</div>
+            </div>
+          </div>
+          
+          <div className="pt-2">
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const askSuggestedQuestion = (question: string) => {
     sendMessage(question);
@@ -139,8 +212,18 @@ export default function ChatBot() {
     <div className="flex flex-col h-[600px] max-w-4xl mx-auto bg-white rounded-lg shadow-lg border">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-lg">
-        <h2 className="text-xl font-semibold">Core DNA Assistant</h2>
-        <p className="text-blue-100 text-sm">Ask me anything about Core DNA's platform</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-semibold">Core DNA Assistant</h2>
+            <p className="text-blue-100 text-sm">Ask me anything about Core DNA's platform</p>
+          </div>
+          <button
+            onClick={() => setShowContactModal(true)}
+            className="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            📞 Contact Sales
+          </button>
+        </div>
       </div>
 
       {/* Messages Area */}
@@ -248,6 +331,9 @@ export default function ChatBot() {
           </button>
         </form>
       </div>
+
+      {/* Contact Modal */}
+      {showContactModal && <ContactModal />}
     </div>
   );
 }

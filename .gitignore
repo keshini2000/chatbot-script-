@@ -19,6 +19,7 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -39,3 +40,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Generated integration packages (can be regenerated)
+/localhost-test/
+
+# Keep important integration files
+!/integration-package/
+!/dist/coredna-chatbot.js

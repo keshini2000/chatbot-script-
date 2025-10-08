@@ -1,0 +1,13 @@
+{
+  "generated": "2025-10-07T03:30:11.137Z",
+  "environment": "production",
+  "config": {
+    "apiUrl": "https://chatbot.coredna.com",
+    "widgetUrl": "https://coredna.com/coredna-chatbot.js",
+    "environment": "production"
+  },
+  "files": [
+    "embed-code.html - Copy-paste integration code",
+    "INTEGRATION_GUIDE.md - Detailed setup instructions"
+  ]
+}

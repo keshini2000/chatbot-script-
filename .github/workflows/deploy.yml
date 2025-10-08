@@ -1,0 +1,105 @@
+name: Deploy Core DNA Chatbot
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run TypeScript type check
+      run: npm run type-check
+    
+    - name: Build project
+      run: npm run build
+    
+    - name: Generate integration packages
+      run: |
+        node scripts/generate-embed-code.js development ./test-dev
+        node scripts/generate-embed-code.js staging ./test-staging
+        node scripts/generate-embed-code.js production ./test-production
+    
+    - name: Test deployment script
+      run: |
+        chmod +x scripts/deploy-widget.sh
+        ./scripts/deploy-widget.sh http://localhost:3000
+
+  deploy-staging:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build project
+      run: npm run build
+    
+    - name: Generate production integration package
+      run: node scripts/generate-embed-code.js production
+    
+    - name: Upload integration package as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coredna-chatbot-integration
+        path: |
+          integration-package/
+          dist/
+          public/coredna-chatbot.js
+        retention-days: 30
+
+  generate-release:
+    needs: [test, deploy-staging]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Generate release package
+      run: |
+        mkdir -p release
+        cp -r integration-package/ release/
+        cp -r scripts/ release/
+        cp docs/*.md release/
+        cp README.md release/
+        
+    - name: Create Release ZIP
+      run: |
+        cd release
+        zip -r ../coredna-chatbot-release.zip .
+        
+    - name: Upload release package
+      uses: actions/upload-artifact@v4
+      with:
+        name: coredna-chatbot-release
+        path: coredna-chatbot-release.zip
+        retention-days: 90

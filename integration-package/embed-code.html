@@ -1,0 +1,55 @@
+<!-- Core DNA Chatbot Widget -->
+<script>
+  // Core DNA Chatbot Configuration
+  window.COREDNA_CHATBOT_API = 'https://chatbot.coredna.com/api/chat';
+  window.COREDNA_CHATBOT_CONFIG = {
+    // Branding
+    brandColor: '#dc2626',
+    brandName: 'Core DNA',
+    
+    // Positioning
+    position: 'bottom-right',
+    zIndex: 10000,
+    
+    // Messages
+    welcomeMessage: 'Hi! I can help you learn about Core DNA\'s platform. Ask me anything!',
+    offlineMessage: 'Our chatbot is currently offline. Please try again later or contact us directly.',
+    
+    // Suggested questions for quick start
+    suggestedQuestions: [
+      'What is Core DNA?',
+      'Tell me about your ecommerce features',
+      'How does Core DNA compare to other platforms?',
+      'What are your pricing options?',
+      'Can I schedule a demo?'
+    ],
+    
+    // Contact information
+    contactInfo: {
+      email: 'sales@coredna.com',
+      phone: {
+        us: '+1 617 274 6660',
+        au: '+61 3 8563 9100'
+      },
+      offices: ['Melbourne', 'Boston', 'Berlin']
+    },
+    
+    // Behavior settings
+    autoOpen: false,
+    showNotifications: true,
+    persistConversation: true,
+    
+    // Environment
+    environment: 'production',
+    debug: false
+  };
+  
+  // Error handling for production
+  window.addEventListener('error', function(e) {
+    if (e.filename && e.filename.includes('coredna-chatbot')) {
+      console.warn('Core DNA Chatbot: Widget failed to load. Please check your network connection.');
+    }
+  });
+</script>
+<script src="https://coredna.com/coredna-chatbot.js" async onerror="console.warn('Core DNA Chatbot: Failed to load widget from https://coredna.com/coredna-chatbot.js')"></script>
+<!-- End Core DNA Chatbot Widget -->
