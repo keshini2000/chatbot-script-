@@ -23,8 +23,8 @@ cp public/coredna-chatbot.js /path/to/your/webserver/
 
 ### For Development & Testing
 ```bash
-git clone <this-repo>
-cd coredna-chatbot
+git clone https://github.com/keshini2000/chatbot-script-.git
+cd chatbot-script-
 npm install
 npm run dev
 # Visit http://localhost:3000
